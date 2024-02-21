@@ -1,7 +1,7 @@
 import Home from "./pages/Home";
 import Profile from "./pages/Profile";
-import Register from "./pages/Register";
-import SignIn from "./pages/SignIn";
+import Register from "./pages/Register/Register";
+import Login from "./pages/Login";
 import { BrowserRouter,Routes,Route } from "react-router-dom"
 import Header from "./components/Header"
 
@@ -10,10 +10,10 @@ export default function App() {
     <BrowserRouter>
     <Header />
     <Routes>
-      <Route path="/" elemen={<Home />} />
-      <Route path="/profile" elemen={<Profile />} />
-      <Route path="/register" elemen={<Register />} />
-      <Route path="/sign-in" elemen={<SignIn />} />
+      <Route path="/" element={<Home />} />
+      <Route path="/profile" element={<Profile />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/login" element={<Login />} />
     </Routes>
     </BrowserRouter>
   </main>
