@@ -7,7 +7,7 @@ export default function OrgHospRegister({ type }) {
     <>
       <Form.Item
         label={type === "hospital" ? "Hospital Name" : "Organization Name"}
-        name={type === "hospital" ? "hospName" : "orgName"}
+        name={type === "hospital" ? "hospitalName" : "orgName"}
       >
         <Input />
       </Form.Item>
