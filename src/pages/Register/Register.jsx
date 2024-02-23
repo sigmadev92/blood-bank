@@ -4,23 +4,33 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import OrgHospRegister from "./OrgHospRegister";
 import { LoginUser, RegisterUser, getCurrentUser } from "../../apicalls/users";
+import { useDispatch } from "react-redux";
+import { SetLoading } from "../../redux/loaderSlice";
+import { getAntdInputValidation } from "../../utils/helpers";
 export default function Register() {
   const [isLoggedIn, setIsLoggedIn] = useState(
     localStorage.Token !== undefined
   );
-
+  const dispatch = useDispatch();
   const [type, setType] = useState("");
   const navigate = useNavigate();
 
   async function onFinish(values) {
+    if (type === "") {
+      message.error("First select the radio button");
+      return;
+    }
     try {
+      dispatch(SetLoading(true));
       const response = await RegisterUser({ ...values, userType: type });
+      dispatch(SetLoading(false));
       if (response.success) {
         console.log("success in making Account. Now getting auth.");
         localStorage.setItem("Token", "1");
         navigate("/");
       }
     } catch (error) {
+      dispatch(SetLoading(false));
       console.log("error came");
       message.error(error.message);
     }
@@ -48,7 +58,7 @@ export default function Register() {
       ) : (
         <Form
           layout="vertical"
-          className="bg-white shadow w-full md:w-1/2 md:grid grid-cols-2  p-5 rounded gap-2 mb-[30px] mt-[50px]"
+          className="bg-white shadow w-full md:w-1/2 md:grid grid-cols-2  p-5 rounded gap-2 mb-[30px] mt-[50px] sm:flex "
           onFinish={(value) => onFinish(value)}
         >
           <h1 className="col-span-2 uppercase">
@@ -72,16 +82,32 @@ export default function Register() {
 
           {type === "donor" && (
             <>
-              <Form.Item label="Name" name="name">
+              <Form.Item
+                label="Name"
+                name="name"
+                rules={getAntdInputValidation()}
+              >
                 <Input type="text" />
               </Form.Item>
-              <Form.Item label="Email" name="email">
+              <Form.Item
+                label="Email"
+                name="email"
+                rules={getAntdInputValidation()}
+              >
                 <Input type="email" />
               </Form.Item>
-              <Form.Item label="Phone" name="phone">
+              <Form.Item
+                label="Phone"
+                name="phone"
+                rules={getAntdInputValidation()}
+              >
                 <Input type="tel" />
               </Form.Item>
-              <Form.Item label="Password" name="password">
+              <Form.Item
+                label="Password"
+                name="password"
+                rules={getAntdInputValidation()}
+              >
                 <Input type="password" />
               </Form.Item>
             </>
@@ -91,12 +117,15 @@ export default function Register() {
           <Button
             className="col-span-2 w-full uppercase bg-green-500"
             htmlType="submit"
+            disabled={type === ""}
           >
             Register
           </Button>
-          <Link to="/login" className="  col-span-2 text-center ">
-            Already have an account ? Login
-          </Link>
+          <div className="w-full  text-center">
+            <Link to="/login" className="  col-span-2 text-center">
+              Already have an account ? Login
+            </Link>
+          </div>
         </Form>
       )}
     </div>

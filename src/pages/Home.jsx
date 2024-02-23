@@ -1,6 +1,8 @@
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 export default function Home() {
+  const { currentUser } = useSelector((state) => state.users);
   const navigate = useNavigate();
   return (
     <div>
@@ -15,6 +17,7 @@ export default function Home() {
       >
         Log out
       </button>
+      <h1>{currentUser && currentUser.email}</h1>
     </div>
   );
 }

@@ -5,9 +5,12 @@ import Login from "./pages/Login";
 import { BrowserRouter,Routes,Route } from "react-router-dom"
 import Header from "./components/Header"
 import ProtectedRoutes from "./components/ProtectedRoutes";
-
+import { useSelector } from "react-redux";
+import Spinner from "./components/Spinner";
 export default function App() {
+  const {loading} = useSelector((state)=> state.loaders);
   return <main>
+    {loading && <Spinner />}
     <BrowserRouter>
     <Header />
     <Routes>

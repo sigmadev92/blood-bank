@@ -2,17 +2,18 @@ import React, { useEffect, useState } from "react";
 import { getCurrentUser } from "../apicalls/users";
 import { message } from "antd";
 import { Link, Navigate, Outlet, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { SetCurrentUser } from "../redux/userSlice";
 export default function ProtectedRoutes() {
-  const [currentUser, setCurrentUser] = useState(
-    localStorage.Token !== undefined
-  );
+  const { currentUser } = useSelector((state) => state.users);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const getCurrentUserInfo = async () => {
     try {
       const response = await getCurrentUser();
+      console.log(response);
       if (response.success) {
-        setCurrentUser(true);
-
+        dispatch(SetCurrentUser(response.Token));
         message.success(response.message);
       } else {
         console.log(response);

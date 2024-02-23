@@ -3,29 +3,36 @@ import React, { useEffect, useState } from "react";
 
 import { Link, useNavigate } from "react-router-dom";
 import { LoginUser } from "../apicalls/users";
+import { useDispatch } from "react-redux";
+import { SetLoading } from "../redux/loaderSlice";
+import { getAntdInputValidation } from "../utils/helpers";
 
 export default function Login() {
   const [type, setType] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(
     localStorage.Token !== undefined
   );
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   async function onFinish(value) {
     try {
+      dispatch(SetLoading(true));
       const response = await LoginUser(value);
+      dispatch(SetLoading(false));
       if (response.success) {
         console.log("LOGGED IN SUCCESSFULLY");
-        message.success(response.message);
+        message.success(response.message + "User Credentials Valid Till 1 day");
         localStorage.setItem("Token", response.Token);
         setIsLoggedIn(true);
-        message.success("User Credentials Valid Till 1 day");
+
         navigate("/");
       } else {
         console.log(response.message);
         message.error(response.message);
       }
     } catch (error) {
+      dispatch(SetLoading(false));
       console.log(error);
       message.error(error);
     }
@@ -69,20 +76,30 @@ export default function Login() {
           </Radio.Group>
           <hr className="mt-3" />
 
-          <Form.Item label="Email" name="email">
+          <Form.Item
+            label="Email"
+            name="email"
+            rules={getAntdInputValidation()}
+          >
             <Input type="email" />
           </Form.Item>
 
-          <Form.Item label="Password" name="password">
+          <Form.Item
+            label="Password"
+            name="password"
+            rules={getAntdInputValidation()}
+          >
             <Input type="password" />
           </Form.Item>
 
           <Button className=" w-full uppercase bg-green-500" htmlType="submit">
             Login
           </Button>
-          <Link to="/register" className=" w-full text-center ">
-            Don't have an account ? Register
-          </Link>
+          <div className="w-full  text-center">
+            <Link to="/register" className="  col-span-2 text-center">
+              Don't have an account ? Register.
+            </Link>
+          </div>
         </Form>
       )}
     </div>
