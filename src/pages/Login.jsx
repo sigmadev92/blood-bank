@@ -3,28 +3,32 @@ import React, { useEffect, useState } from "react";
 
 import { Link, useNavigate } from "react-router-dom";
 import { LoginUser } from "../apicalls/users";
-import { useDispatch } from "react-redux";
-import { SetLoading } from "../redux/loaderSlice";
 import { getAntdInputValidation } from "../utils/helpers";
 
-export default function Login() {
-  const [type, setType] = useState("");
-  const [isLoggedIn, setIsLoggedIn] = useState(
-    localStorage.Token !== undefined
-  );
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
+import { useDispatch } from "react-redux";
+import { SetLoading } from "../redux/loaderSlice";
+import { SetCurrentUser } from "../redux/userSlice";
 
+export default function Login() {
+  const dispatch = useDispatch();
+  const [type, setType] = useState("donor");
+
+  const navigate = useNavigate();
+  const [isLoggedIn, SetIsLoggedIn] = useState(
+    localStorage.getItem("Token") !== ""
+  );
   async function onFinish(value) {
     try {
       dispatch(SetLoading(true));
-      const response = await LoginUser(value);
+      const response = await LoginUser({ ...value, userType: type });
       dispatch(SetLoading(false));
       if (response.success) {
+        dispatch(SetCurrentUser(response.userData));
         console.log("LOGGED IN SUCCESSFULLY");
-        message.success(response.message + "User Credentials Valid Till 1 day");
+        message.success(
+          response.message + ".  User Credentials Valid Till 1 day"
+        );
         localStorage.setItem("Token", response.Token);
-        setIsLoggedIn(true);
 
         navigate("/");
       } else {
@@ -34,7 +38,7 @@ export default function Login() {
     } catch (error) {
       dispatch(SetLoading(false));
       console.log(error);
-      message.error(error);
+      message.error("Something went wrong");
     }
   }
 
@@ -48,7 +52,7 @@ export default function Login() {
           </h1>
           <button
             onClick={() => {
-              localStorage.removeItem("Token");
+              localStorage.setItem("Token", "");
               navigate("/login");
             }}
             type="button"
@@ -69,6 +73,7 @@ export default function Login() {
             onChange={(e) => {
               setType(e.target.value);
             }}
+            value={type}
           >
             <Radio value="donor">Donor</Radio>
             <Radio value="hospital">Hospital</Radio>
@@ -92,7 +97,11 @@ export default function Login() {
             <Input type="password" />
           </Form.Item>
 
-          <Button className=" w-full uppercase bg-green-500" htmlType="submit">
+          <Button
+            className=" w-full uppercase bg-green-500"
+            htmlType="submit"
+            disabled={type === ""}
+          >
             Login
           </Button>
           <div className="w-full  text-center">

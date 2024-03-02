@@ -1,17 +1,19 @@
 import Home from "./pages/Home";
-import Profile from "./pages/Profile";
+import Profile from "./pages/Profile/Profile";
 import Register from "./pages/Register/Register";
 import Login from "./pages/Login";
 import { BrowserRouter,Routes,Route } from "react-router-dom"
 import Header from "./components/Header"
 import ProtectedRoutes from "./components/ProtectedRoutes";
-import { useSelector } from "react-redux";
 import Spinner from "./components/Spinner";
+import {  useSelector} from "react-redux";
 export default function App() {
-  const {loading} = useSelector((state)=> state.loaders);
+  const {loading} = useSelector(state=>state.loaders);
+   
   return <main>
-    {loading && <Spinner />}
+     {loading && <Spinner />}
     <BrowserRouter>
+    
     <Header />
     <Routes>
       <Route path="/" element={<ProtectedRoutes />} >

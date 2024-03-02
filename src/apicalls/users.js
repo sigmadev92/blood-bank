@@ -14,9 +14,38 @@ export const RegisterUser = async(payload)=>{
 
 export const getCurrentUser = async()=>{
     const response = await axios.get("http://localhost:4000/api/users/get-current-user",{ headers :{
-        authorization : localStorage.Token
+        authorization : localStorage.getItem("Token")
     }})
-    console.log(response.data);
+
+   
+    
     return response.data;
 }
 
+export const GetOrgs = async(value)=>{
+    const response = await axios.get("http://localhost:4000/api/users/get-all-orgs",{
+        headers:{
+            authorization : localStorage.getItem("Token"),
+            userType : value
+        }
+    });
+    return response.data;
+
+};
+
+export const InventoryForDonors = async()=>{
+    const response = await axios.get("http://localhost:4000/api/users/inventory-for-donors",{
+        headers : {
+            authorization : localStorage.getItem("Token")
+        }
+    })
+    return response.data;
+}
+export const InventoryForHospitals = async()=>{
+    const response = await axios.get("http://localhost:4000/api/users/inventory-for-hosps",{
+        headers : {
+            authorization : localStorage.getItem("Token")
+        }
+    })
+    return response.data;
+}

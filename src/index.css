@@ -6,3 +6,9 @@
     width :100% !important;
      
 }
+input{
+    border:1px solid blue;
+    width:100%;
+    padding-left: 10px;
+    padding-top : 5px;
+}

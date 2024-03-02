@@ -1,34 +1,31 @@
 import React, { useEffect, useState } from "react";
+
+import { Navigate, Outlet } from "react-router-dom";
 import { getCurrentUser } from "../apicalls/users";
-import { message } from "antd";
-import { Link, Navigate, Outlet, useNavigate } from "react-router-dom";
+
 import { useDispatch, useSelector } from "react-redux";
+import { message } from "antd";
 import { SetCurrentUser } from "../redux/userSlice";
 export default function ProtectedRoutes() {
   const { currentUser } = useSelector((state) => state.users);
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const getCurrentUserInfo = async () => {
+  const GetCurrentUser = async () => {
     try {
       const response = await getCurrentUser();
-      console.log(response);
       if (response.success) {
-        dispatch(SetCurrentUser(response.Token));
         message.success(response.message);
+        dispatch(SetCurrentUser(response.userData));
       } else {
-        console.log(response);
-
-        message.error("User Authentication failed");
-        navigate("/login");
+        throw new Error(response.message);
       }
-    } catch (error) {
-      console.log(error.message);
-      message.error("SOME API PROBLEM");
+    } catch (err) {
+      console.log(err);
+      message.error("Something went wrong");
     }
   };
   useEffect(() => {
-    if (localStorage.Token === undefined) getCurrentUserInfo();
+    if (localStorage.getItem("Token")) GetCurrentUser();
   }, []);
 
-  return { currentUser } ? <Outlet /> : <Navigate to="/login" />;
+  return currentUser ? <Outlet /> : <Navigate to="/login" />;
 }

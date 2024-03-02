@@ -3,36 +3,45 @@ import React, { useEffect, useState } from "react";
 
 import { Link, useNavigate } from "react-router-dom";
 import OrgHospRegister from "./OrgHospRegister";
-import { LoginUser, RegisterUser, getCurrentUser } from "../../apicalls/users";
+import { RegisterUser, getCurrentUser } from "../../apicalls/users";
+
+import { getAntdInputValidation } from "../../utils/helpers";
 import { useDispatch } from "react-redux";
 import { SetLoading } from "../../redux/loaderSlice";
-import { getAntdInputValidation } from "../../utils/helpers";
+
 export default function Register() {
-  const [isLoggedIn, setIsLoggedIn] = useState(
-    localStorage.Token !== undefined
-  );
-  const dispatch = useDispatch();
-  const [type, setType] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  const disPatch = useDispatch();
+  const [type, setType] = useState("donor");
   const navigate = useNavigate();
 
-  async function onFinish(values) {
-    if (type === "") {
-      message.error("First select the radio button");
-      return;
-    }
-    try {
-      dispatch(SetLoading(true));
-      const response = await RegisterUser({ ...values, userType: type });
-      dispatch(SetLoading(false));
+  useEffect(() => {
+    async function check() {
+      const response = await getCurrentUser();
       if (response.success) {
-        console.log("success in making Account. Now getting auth.");
-        localStorage.setItem("Token", "1");
-        navigate("/");
+        setIsLoggedIn(true);
+      }
+    }
+    check();
+  }, []);
+
+  async function onFinish(values) {
+    console.log(values);
+    try {
+      disPatch(SetLoading(true));
+      const response = await RegisterUser({ ...values, userType: type });
+      disPatch(SetLoading(false));
+      if (response.success) {
+        message.success(
+          "Account created Successfully. In order to access the website,please login again."
+        );
+        navigate("/login");
       }
     } catch (error) {
-      dispatch(SetLoading(false));
-      console.log("error came");
-      message.error(error.message);
+      disPatch(SetLoading(false));
+      console.log(error);
+      message.error("SOME ERROR CAME");
     }
   }
 
@@ -46,7 +55,8 @@ export default function Register() {
           </h1>
           <button
             onClick={() => {
-              localStorage.removeItem("Token");
+              setIsLoggedIn(false);
+              localStorage.setItem("Token", "");
               navigate("/login");
             }}
             type="button"
@@ -65,15 +75,7 @@ export default function Register() {
             {type ? type + " - " : ""}Registeration
           </h1>
           <hr className="col-span-2 mb-3" />
-          <Radio.Group
-            onChange={(e) => {
-              console.log(type);
-              setType(e.target.value);
-
-              console.log(e.target.value);
-              console.log(type);
-            }}
-          >
+          <Radio.Group value={type} onChange={(e) => setType(e.target.value)}>
             <Radio value="donor">Donor</Radio>
             <Radio value="hospital">Hospital</Radio>
             <Radio value="organisation">Organisation</Radio>
@@ -85,11 +87,21 @@ export default function Register() {
               <Form.Item
                 label="Name"
                 name="name"
+                initialValue=""
                 rules={getAntdInputValidation()}
               >
                 <Input type="text" />
               </Form.Item>
               <Form.Item
+                initialValue=""
+                label="Blood Group"
+                name="bloodGroup"
+                rules={getAntdInputValidation()}
+              >
+                <Input type="text" />
+              </Form.Item>
+              <Form.Item
+                initialValue=""
                 label="Email"
                 name="email"
                 rules={getAntdInputValidation()}
@@ -97,6 +109,7 @@ export default function Register() {
                 <Input type="email" />
               </Form.Item>
               <Form.Item
+                initialValue=""
                 label="Phone"
                 name="phone"
                 rules={getAntdInputValidation()}
@@ -104,6 +117,7 @@ export default function Register() {
                 <Input type="tel" />
               </Form.Item>
               <Form.Item
+                initialValue=""
                 label="Password"
                 name="password"
                 rules={getAntdInputValidation()}
@@ -112,7 +126,9 @@ export default function Register() {
               </Form.Item>
             </>
           )}
-          {type !== "" && type !== "donor" && <OrgHospRegister type={type} />}
+          {(type === "hospital" || type === "organisation") && (
+            <OrgHospRegister type={type} />
+          )}
 
           <Button
             className="col-span-2 w-full uppercase bg-green-500"
